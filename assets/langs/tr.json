@@ -1,0 +1,13 @@
+{
+  "settings": "Ayarlar",
+  "change_password": "Şifreyi değiştir",
+  "change_language": "Dili değiştir",
+  "privacy_policy": "Gizlilik Politikası",
+  "contact_us": "Bize Ulaşın",
+  "delete_account": "Hesabı Sil",
+  "old_password": "Eski Şifre",
+  "new_password": "Yeni Şifre",
+  "confirm_password": "Şifreyi Onayla",
+  "save": "Kaydet",
+  "password_changed": "Şifre başarıyla değiştirildi!"
+} 

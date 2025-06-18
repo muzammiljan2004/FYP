@@ -1,0 +1,13 @@
+{
+  "settings": "Instellingen",
+  "change_password": "Wachtwoord wijzigen",
+  "change_language": "Taal wijzigen",
+  "privacy_policy": "Privacybeleid",
+  "contact_us": "Neem contact op",
+  "delete_account": "Account verwijderen",
+  "old_password": "Oud wachtwoord",
+  "new_password": "Nieuw wachtwoord",
+  "confirm_password": "Bevestig wachtwoord",
+  "save": "Opslaan",
+  "password_changed": "Wachtwoord succesvol gewijzigd!"
+} 

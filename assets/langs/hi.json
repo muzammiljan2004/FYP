@@ -1,0 +1,13 @@
+{
+  "settings": "सेटिंग्स",
+  "change_password": "पासवर्ड बदलें",
+  "change_language": "भाषा बदलें",
+  "privacy_policy": "गोपनीयता नीति",
+  "contact_us": "संपर्क करें",
+  "delete_account": "खाता हटाएं",
+  "old_password": "पुराना पासवर्ड",
+  "new_password": "नया पासवर्ड",
+  "confirm_password": "पासवर्ड की पुष्टि करें",
+  "save": "सहेजें",
+  "password_changed": "पासवर्ड सफलतापूर्वक बदल दिया गया है!"
+} 

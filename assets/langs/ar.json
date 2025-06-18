@@ -1,0 +1,13 @@
+{
+  "settings": "الإعدادات",
+  "change_password": "تغيير كلمة المرور",
+  "change_language": "تغيير اللغة",
+  "privacy_policy": "سياسة الخصوصية",
+  "contact_us": "اتصل بنا",
+  "delete_account": "حذف الحساب",
+  "old_password": "كلمة المرور القديمة",
+  "new_password": "كلمة المرور الجديدة",
+  "confirm_password": "تأكيد كلمة المرور",
+  "save": "حفظ",
+  "password_changed": "تم تغيير كلمة المرور بنجاح!"
+} 

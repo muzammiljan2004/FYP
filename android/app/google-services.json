@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "279686141911",
+    "firebase_url": "https://wego-app-c0a8d-default-rtdb.firebaseio.com",
+    "project_id": "wego-app-c0a8d",
+    "storage_bucket": "wego-app-c0a8d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:279686141911:android:7f41a56bf060cd48385d92",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeokS0VZMTxhCJCGjr2yRb7ZUx695y9Dg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

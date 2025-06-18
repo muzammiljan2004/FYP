@@ -1,0 +1,13 @@
+{
+  "settings": "Einstellungen",
+  "change_password": "Passwort ändern",
+  "change_language": "Sprache ändern",
+  "privacy_policy": "Datenschutz-Bestimmungen",
+  "contact_us": "Kontaktieren Sie uns",
+  "delete_account": "Konto löschen",
+  "old_password": "Altes Passwort",
+  "new_password": "Neues Passwort",
+  "confirm_password": "Passwort bestätigen",
+  "save": "Speichern",
+  "password_changed": "Passwort erfolgreich geändert!"
+} 
