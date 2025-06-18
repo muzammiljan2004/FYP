@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'wallet.dart';
 import 'home_screen_passenger.dart';
 import 'login.dart';
+import 'utils/validation_utils.dart';
 
 void main() => runApp(MyApp());
 
@@ -193,13 +194,15 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     SizedBox(width: 10),
                     Expanded(
-                      child: TextField(
+                      child: TextFormField(
                         decoration: InputDecoration(
                           prefixText: '+880 ',
                           hintText: 'Your mobile number',
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8)),
                         ),
+                        keyboardType: TextInputType.phone,
+                        validator: ValidationUtils.validatePhone,
                       ),
                     ),
                   ],
@@ -292,12 +295,20 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildTextField({required String hint, required double horizontal}) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: horizontal),
-      child: TextField(
+      child: TextFormField(
         decoration: InputDecoration(
           hintText: hint,
           border:
               OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         ),
+        validator: (value) {
+          if (hint.toLowerCase().contains('email')) {
+            return ValidationUtils.validateEmail(value);
+          } else if (hint.toLowerCase().contains('address')) {
+            return ValidationUtils.validateAddress(value);
+          }
+          return ValidationUtils.validateRequired(value, hint);
+        },
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'services/user_service.dart';
+import 'utils/validation_utils.dart';
 
 class ProfileEditPage extends StatefulWidget {
   final Map<String, dynamic> currentProfile;
@@ -91,12 +92,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   labelText: 'Full Name',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your name';
-                  }
-                  return null;
-                },
+                validator: ValidationUtils.validateName,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -105,15 +101,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   labelText: 'Email',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  if (!value.contains('@')) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
+                validator: ValidationUtils.validateEmail,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -123,6 +111,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.phone,
+                validator: ValidationUtils.validatePhone,
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(

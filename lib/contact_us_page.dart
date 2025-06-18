@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'utils/validation_utils.dart';
 
 class ContactUsPage extends StatefulWidget {
   @override
@@ -59,13 +62,13 @@ class _ContactUsPageState extends State<ContactUsPage> {
                   TextFormField(
                     controller: _nameController,
                     decoration: InputDecoration(labelText: 'Name', border: OutlineInputBorder()),
-                    validator: (value) => value == null || value.isEmpty ? 'Enter your name' : null,
+                    validator: ValidationUtils.validateName,
                   ),
                   SizedBox(height: 16),
                   TextFormField(
                     controller: _emailController,
                     decoration: InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
-                    validator: (value) => value == null || value.isEmpty ? 'Enter your email' : null,
+                    validator: ValidationUtils.validateEmail,
                   ),
                   SizedBox(height: 16),
                   TextFormField(
@@ -78,7 +81,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
                         child: Text('+92', style: TextStyle(fontSize: 16)),
                       ),
                     ),
-                    validator: (value) => value == null || value.isEmpty ? 'Enter your mobile number' : null,
+                    validator: ValidationUtils.validatePhone,
                     keyboardType: TextInputType.phone,
                   ),
                   SizedBox(height: 16),
@@ -86,7 +89,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
                     controller: _messageController,
                     decoration: InputDecoration(labelText: 'Write your message', border: OutlineInputBorder()),
                     maxLines: 3,
-                    validator: (value) => value == null || value.isEmpty ? 'Enter your message' : null,
+                    validator: ValidationUtils.validateMessage,
                   ),
                   SizedBox(height: 24),
                   SizedBox(

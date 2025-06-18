@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'home_screen_passenger.dart';
+import 'utils/validation_utils.dart';
 
 class ReviewPage extends StatefulWidget {
   final String rideId;
@@ -226,6 +227,7 @@ class _ReviewPageState extends State<ReviewPage> {
                                 hintText: 'Share your experience...',
                                 border: OutlineInputBorder(),
                               ),
+                              validator: ValidationUtils.validateMessage,
                             ),
                           ],
                         ),

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:country_picker/country_picker.dart';
 import 'verify.dart';
 import 'login.dart';
+import 'utils/validation_utils.dart';
 
 class InfoPage extends StatefulWidget {
   final String role;
@@ -85,8 +86,7 @@ class _InfoPageState extends State<InfoPage> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                validator: (v) =>
-                    (v == null || v.isEmpty) ? 'Please fill first' : null,
+                validator: ValidationUtils.validateName,
               ),
               const SizedBox(height: 16),
 
@@ -100,11 +100,7 @@ class _InfoPageState extends State<InfoPage> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                validator: (v) {
-                  if (v == null || v.isEmpty) return 'Please fill first';
-                  if (!_isValidEmail(v)) return 'Enter a valid email';
-                  return null;
-                },
+                validator: ValidationUtils.validateEmail,
               ),
               const SizedBox(height: 16),
 
@@ -162,9 +158,7 @@ class _InfoPageState extends State<InfoPage> {
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.only(right: 12),
                         ),
-                        validator: (v) => (v == null || v.isEmpty)
-                            ? 'Please fill first'
-                            : null,
+                        validator: ValidationUtils.validatePhone,
                       ),
                     ),
                   ],
@@ -185,8 +179,7 @@ class _InfoPageState extends State<InfoPage> {
                     .map((g) => DropdownMenuItem(value: g, child: Text(g)))
                     .toList(),
                 onChanged: (v) => setState(() => _selectedGender = v),
-                validator: (v) =>
-                    (v == null || v.isEmpty) ? 'Please fill first' : null,
+                validator: (v) => ValidationUtils.validateDropdown(v, 'gender'),
               ),
               const SizedBox(height: 16),
 

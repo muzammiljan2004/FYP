@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'utils/validation_utils.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   @override
@@ -109,7 +110,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   border: OutlineInputBorder(),
                   contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
-                validator: (value) => value == null || value.isEmpty ? 'new_password'.tr() : null,
+                validator: ValidationUtils.validatePassword,
               ),
               SizedBox(height: 16),
               TextFormField(
@@ -120,11 +121,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   border: OutlineInputBorder(),
                   contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) return 'confirm_password'.tr();
-                  if (value != _newPasswordController.text) return 'Passwords do not match';
-                  return null;
-                },
+                validator: (value) => ValidationUtils.validateConfirmPassword(value, _newPasswordController.text),
               ),
               SizedBox(height: 32),
               SizedBox(

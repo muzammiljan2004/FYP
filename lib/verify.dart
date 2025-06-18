@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'set_password.dart';
+import 'utils/validation_utils.dart';
 
 class VerifyPage extends StatefulWidget {
   final String phoneNumber;
@@ -53,9 +54,12 @@ class _VerifyPageState extends State<VerifyPage> {
 
   void _verifyOTP() async {
     final otp = _otpControllers.map((c) => c.text).join();
-    if (otp.length != 6) {
+    
+    // Validate OTP using ValidationUtils
+    final otpValidation = ValidationUtils.validateOTP(otp);
+    if (otpValidation != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter 6 digits")),
+        SnackBar(content: Text(otpValidation)),
       );
       return;
     }

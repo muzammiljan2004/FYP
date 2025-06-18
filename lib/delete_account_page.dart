@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
 import 'package:flutter_application_1/login.dart'; // Import your login page
+import 'utils/validation_utils.dart';
 
 class DeleteAccountPage extends StatefulWidget {
   @override
@@ -37,10 +38,21 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: Text('Reauthenticate'.tr()),
-              content: TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(labelText: 'password'.tr()),
+              content: Form(
+                child: TextFormField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(labelText: 'password'.tr()),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Password is required';
+                    }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
+                    return null;
+                  },
+                ),
               ),
               actions: <Widget>[
                 TextButton(
@@ -55,6 +67,12 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                 TextButton(
                   child: Text('Confirm'.tr()),
                   onPressed: () async {
+                    // Validate password before proceeding
+                    final form = Form.of(context);
+                    if (form?.validate() == false) {
+                      return;
+                    }
+                    
                     try {
                       AuthCredential credential = EmailAuthProvider.credential(
                         email: user.email!,

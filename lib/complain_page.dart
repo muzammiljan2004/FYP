@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'utils/validation_utils.dart';
 
 class ComplainPage extends StatefulWidget {
   const ComplainPage({Key? key}) : super(key: key);
@@ -82,13 +85,19 @@ class _ComplainPageState extends State<ComplainPage> {
               ),
             ),
             const SizedBox(height: 16),
-            TextField(
+            TextFormField(
               controller: _descController,
               maxLines: 4,
               decoration: InputDecoration(
                 hintText: 'Enter your complaint here (Optional)',
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               ),
+              validator: (value) {
+                if (value != null && value.trim().isNotEmpty) {
+                  return ValidationUtils.validateMessage(value);
+                }
+                return null; // Optional field
+              },
             ),
             const SizedBox(height: 24),
             SizedBox(
