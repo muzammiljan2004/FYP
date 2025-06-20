@@ -164,9 +164,9 @@
                       _routeConfirmed = true;
                       _isOnline = true;
                       _requestsStream = FirebaseFirestore.instance
-                        .collection('request_ride')
+                        .collection('ride_requests')
                         .where('RouteId', isEqualTo: route['name'])
-                        .where('Status', isEqualTo: 0)
+                        .where('status', isEqualTo: 'pending')
                         .snapshots();
                     });
                     final user = FirebaseAuth.instance.currentUser;
@@ -375,7 +375,7 @@
         // Generate a new document ID for the active ride once
         final newRideDocRef = FirebaseFirestore.instance.collection('active_rides').doc();
 
-        // Remove from request_ride
+        // Remove from ride_requests
         batch.delete(requestDoc.reference);
 
         // Add to active_rides using the generated document reference
@@ -387,12 +387,12 @@
             'AcceptanceTime': FieldValue.serverTimestamp(),
             'From': data['From'],
             'To': data['To'],
-            'RideInfo': 'inprocess', // This will be the ride status now (pending, driver_arrived, in_progress, completed)
+            'status': 'pending',
             'RouteId': data['RouteId'],
-            'status': 'pending', // Set initial status to 'pending' as per requirement
-            'pickup_stop': data['From'], // Explicitly add pickup_stop
-            'drop_stop': data['To'], // Explicitly add drop_stop
-            // CurrentLocation of driver is not for live tracking, only for initial marker if needed
+            'pickup_stop': data['From'],
+            'drop_stop': data['To'],
+            'pickup_stop_index': data['pickup_stop_index'],
+            'dropoff_stop_index': data['dropoff_stop_index'],
             'CurrentLocation': _currentPosition != null ? {
               'lat': _currentPosition?.latitude,
               'lng': _currentPosition?.longitude,
@@ -418,7 +418,7 @@
 
       Future<void> _rejectRequest(String requestId) async {
         try {
-          await FirebaseFirestore.instance.collection('request_ride').doc(requestId).delete();
+          await FirebaseFirestore.instance.collection('ride_requests').doc(requestId).delete();
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Ride request rejected.')),

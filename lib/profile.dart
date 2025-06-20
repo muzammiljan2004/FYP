@@ -258,7 +258,7 @@ class _ProfilePageState extends State<ProfilePage> {
           if (index == 0) {
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => const PassengerHomeScreen(selectedIndex: 0)),
+              MaterialPageRoute(builder: (context) => const PassengerHomeScreen()),
               (route) => false,
             );
           } else if (index == 1) {
@@ -269,7 +269,7 @@ class _ProfilePageState extends State<ProfilePage> {
           } else if (index == 2) {
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => const PassengerHomeScreen(selectedIndex: 2)),
+              MaterialPageRoute(builder: (context) => const PassengerHomeScreen()),
               (route) => false,
             );
           }

@@ -214,7 +214,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
             print('[PAX_HOME] _listenForActiveRide: Widget is mounted. Navigating to PassengerHomeScreen.'); // Diagnostic print
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => const PassengerHomeScreen()),
-              (Route<dynamic> route) => false,
+                  (Route<dynamic> route) => false,
             );
           } else {
             print('[PAX_HOME] _listenForActiveRide: Widget is NOT mounted. Cannot navigate.'); // Diagnostic print
@@ -244,7 +244,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
     if (_userPickupStop != null && _userSelectedRoute != null && _userSelectedRoute!['stops'] is List) {
       final routeStops = List<Map<String, dynamic>>.from(_userSelectedRoute!['stops']);
       passengerPickupStopIndex = routeStops.indexWhere((stop) =>
-          stop is Map<String, dynamic> && stop['name'] == _userPickupStop!['name']);
+      stop is Map<String, dynamic> && stop['name'] == _userPickupStop!['name']);
       if (passengerPickupStopIndex == -1) {
         passengerPickupStopIndex = null;
       }
@@ -342,7 +342,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const PassengerHomeScreen()),
-          (Route<dynamic> route) => false,
+              (Route<dynamic> route) => false,
         );
       }
     } else {
@@ -351,7 +351,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const PassengerHomeScreen()),
-          (Route<dynamic> route) => false,
+              (Route<dynamic> route) => false,
         );
       }
     }
@@ -383,7 +383,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                 onPressed: () async {
                   cancelled = true;
                   print('[PAX_HOME] _showFindingDriverDialog: Cancel button pressed.');
-                  await FirebaseFirestore.instance.collection('request_ride').doc(requestId).delete();
+                  await FirebaseFirestore.instance.collection('ride_requests').doc(requestId).delete();
                   if (completer.isCompleted == false) {
                     completer.complete();
                     print('[PAX_HOME] _showFindingDriverDialog: Completer completed by cancel.');
@@ -645,48 +645,48 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   ElevatedButton(
                     onPressed: selectedDriverIndex != null && _seatGenders.any((g) => g != null) // Re-added seat selection check
                         ? () async {
-                            final user = FirebaseAuth.instance.currentUser;
-                            if (user == null) {
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('User not signed in. Please log in again.')),
-                                );
-                              }
-                              return;
-                            }
+                      final user = FirebaseAuth.instance.currentUser;
+                      if (user == null) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('User not signed in. Please log in again.')),
+                          );
+                        }
+                        return;
+                      }
 
-                            final driverDocData = driversWithDetails[selectedDriverIndex!];
+                      final driverDocData = driversWithDetails[selectedDriverIndex!];
 
-                            // Determine pickup_stop_index
-                            int? pickupStopIndex;
-                            if (_userSelectedRoute != null && _userPickupStop != null) {
-                              final routeStops = List<Map<String, dynamic>>.from(_userSelectedRoute!['stops'] ?? []);
-                              pickupStopIndex = routeStops.indexWhere((stop) => stop['name'] == _userPickupStop!['name']);
-                              if (pickupStopIndex == -1) pickupStopIndex = null; // Ensure it's null if not found
-                            }
+                      // Determine pickup_stop_index
+                      int? pickupStopIndex;
+                      if (_userSelectedRoute != null && _userPickupStop != null) {
+                        final routeStops = List<Map<String, dynamic>>.from(_userSelectedRoute!['stops'] ?? []);
+                        pickupStopIndex = routeStops.indexWhere((stop) => stop['name'] == _userPickupStop!['name']);
+                        if (pickupStopIndex == -1) pickupStopIndex = null; // Ensure it's null if not found
+                      }
 
-                            final request = {
-                              'PId': user.uid,
-                              'PName': _userProfile?['name'] ?? '',
-                              'Status': 0, // Pending
-                              'BookingTime': FieldValue.serverTimestamp(),
-                              'From': _userPickupStop,
-                              'To': _userDropoffStop,
-                              'RouteId': _userSelectedRoute!['name'],
-                              'DId': driverDocData['DId'],
-                              'Seats': _seatGenders, // Send the selected genders
-                              'pickup_stop_index': pickupStopIndex,
-                              'fare': double.parse(paymentAmount.replaceAll('Rs.', '')), // Add fare to request
-                            };
+                      final request = {
+                        'PId': user.uid,
+                        'PName': _userProfile?['name'] ?? '',
+                        'status': 'pending', // Pending (string, lowercase)
+                        'BookingTime': FieldValue.serverTimestamp(),
+                        'From': _userPickupStop,
+                        'To': _userDropoffStop,
+                        'RouteId': _userSelectedRoute!['name'],
+                        'DId': driverDocData['DId'],
+                        'Seats': _seatGenders, // Send the selected genders
+                        'pickup_stop_index': pickupStopIndex,
+                        'fare': double.parse(paymentAmount.replaceAll('Rs.', '')), // Add fare to request
+                      };
 
-                            print('[PAX_HOME] Requesting ride with data: $request');
-                            final requestRef = await FirebaseFirestore.instance.collection('request_ride').add(request);
-                            print('[PAX_HOME] Ride request added with ID: ${requestRef.id}');
-                            if (mounted) {
-                              Navigator.pop(context); // Dismiss the modal
-                            }
-                            await _showFindingDriverDialog(requestRef.id);
-                          }
+                      print('[PAX_HOME] Requesting ride with data: $request');
+                      final requestRef = await FirebaseFirestore.instance.collection('ride_requests').add(request);
+                      print('[PAX_HOME] Ride request added with ID: ${requestRef.id}');
+                      if (mounted) {
+                        Navigator.pop(context); // Dismiss the modal
+                      }
+                      await _showFindingDriverDialog(requestRef.id);
+                    }
                         : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: selectedDriverIndex != null && _seatGenders.any((g) => g != null) ? const Color(0xFF2D2F7D) : Colors.grey,
@@ -825,7 +825,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
 
   Future<void> _editProfile() async {
     if (_userProfile == null) return;
-    
+
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -982,20 +982,20 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             value: _userPickupStop,
                             isExpanded: true,
                             items: (
-                                    _userSelectedRoute!['stops'] as List<dynamic>
-                                  )
-                                      .whereType<Map<String, dynamic>>() // Ensure it's a list of maps
-                                      .where((stop) =>
-                                          stop.containsKey('lat') &&
-                                          stop['lat'] is num &&
-                                          stop.containsKey('lng') &&
-                                          stop['lng'] is num) // Filter for valid stops
-                                      .map((stop) {
-                                return DropdownMenuItem<Map<String, dynamic>>(
-                                  value: stop,
-                                  child: Text(stop['name'] ?? 'Unknown Stop'),
-                                );
-                              }).toList(),
+                                _userSelectedRoute!['stops'] as List<dynamic>
+                            )
+                                .whereType<Map<String, dynamic>>() // Ensure it's a list of maps
+                                .where((stop) =>
+                            stop.containsKey('lat') &&
+                                stop['lat'] is num &&
+                                stop.containsKey('lng') &&
+                                stop['lng'] is num) // Filter for valid stops
+                                .map((stop) {
+                              return DropdownMenuItem<Map<String, dynamic>>(
+                                value: stop,
+                                child: Text(stop['name'] ?? 'Unknown Stop'),
+                              );
+                            }).toList(),
                             onChanged: (stop) {
                               setState(() {
                                 _userPickupStop = stop;
@@ -1030,23 +1030,23 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                             items: _userPickupStop == null
                                 ? [] // No pickup stop selected, no dropoff stops available
                                 : (
-                                        _userSelectedRoute!['stops'] as List<dynamic>
-                                      )
-                                          .whereType<Map<String, dynamic>>() // Ensure it's a list of maps
-                                          .skipWhile((stop) =>
-                                              stop['name'] != _userPickupStop!['name']) // Skip until pickup stop is found
-                                          .skip(1) // Then skip the pickup stop itself
-                                          .where((stop) =>
-                                              stop.containsKey('lat') &&
-                                              stop['lat'] is num &&
-                                              stop.containsKey('lng') &&
-                                              stop['lng'] is num) // Filter for valid stops
-                                          .map((stop) {
-                                return DropdownMenuItem<Map<String, dynamic>>(
-                                  value: stop,
-                                  child: Text(stop['name'] ?? 'Unknown Stop'),
-                                );
-                              }).toList(),
+                                _userSelectedRoute!['stops'] as List<dynamic>
+                            )
+                                .whereType<Map<String, dynamic>>() // Ensure it's a list of maps
+                                .skipWhile((stop) =>
+                            stop['name'] != _userPickupStop!['name']) // Skip until pickup stop is found
+                                .skip(1) // Then skip the pickup stop itself
+                                .where((stop) =>
+                            stop.containsKey('lat') &&
+                                stop['lat'] is num &&
+                                stop.containsKey('lng') &&
+                                stop['lng'] is num) // Filter for valid stops
+                                .map((stop) {
+                              return DropdownMenuItem<Map<String, dynamic>>(
+                                value: stop,
+                                child: Text(stop['name'] ?? 'Unknown Stop'),
+                              );
+                            }).toList(),
                             onChanged: (stop) {
                               setState(() {
                                 _userDropoffStop = stop;
@@ -1069,9 +1069,9 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                   child: ElevatedButton(
                     onPressed: _isConfirmEnabled
                         ? () async {
-                            // Call _requestRide to handle the full flow
-                            await _requestRide();
-                          }
+                      // Call _requestRide to handle the full flow
+                      await _requestRide();
+                    }
                         : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.indigo[900],
@@ -1233,7 +1233,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
                 Navigator.pop(context);
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => LoginScreen()),
-                  (route) => false,
+                      (route) => false,
                 );
               },
             ),

@@ -4,10 +4,11 @@ import 'login.dart';
 import 'signup.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_application_1/services/notification_service.dart';
 
 const Color primaryButtonColor = Color(0xFF2D2F7D);
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (kIsWeb) {
@@ -27,6 +28,13 @@ void main() async {
   }
 
   await EasyLocalization.ensureInitialized();
+
+  try {
+    await NotificationService().initialize();
+    print("Notification Service Initialized Successfully");
+  } catch (e) {
+    print("Failed to initialize Firebase or Notifications: $e");
+  }
 
   runApp(
     EasyLocalization(

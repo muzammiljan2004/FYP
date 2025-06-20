@@ -8,6 +8,7 @@ import 'dart:ui' as ui;
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'home_screen_driver.dart'; // Changed to relative import path
+import 'package:flutter_application_1/services/notification_service.dart';
 
 class RideStartedPage extends StatefulWidget {
   final String driverId;
@@ -23,6 +24,7 @@ class RideStartedPage extends StatefulWidget {
 class _RideStartedPageState extends State<RideStartedPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   Map<String, dynamic>? _currentRideData;
+  Map<String, dynamic>? _driverProfile; // Declare driver profile
   List<Map<String, dynamic>> _routeStops = [];
   Map<String, dynamic>? _driverCurrentStop;
   Map<String, dynamic>? _driverNextStop;
@@ -32,8 +34,18 @@ class _RideStartedPageState extends State<RideStartedPage> {
   @override
   void initState() {
     super.initState();
+    _loadDriverProfile(); // Load driver's profile
     _routeStops = List<Map<String, dynamic>>.from(widget.routeData['stops'] ?? []);
     _listenToRideUpdates();
+  }
+
+  Future<void> _loadDriverProfile() async {
+    final driverDoc = await _firestore.collection('users').doc(widget.driverId).get();
+    if (mounted && driverDoc.exists) {
+      setState(() {
+        _driverProfile = driverDoc.data();
+      });
+    }
   }
 
   void _listenToRideUpdates() {
@@ -69,10 +81,9 @@ class _RideStartedPageState extends State<RideStartedPage> {
         if (_currentStopIndex + 1 < _routeStops.length) {
           _driverNextStop = _routeStops[_currentStopIndex + 1];
         } else {
-          _driverNextStop = null; // No next stop
+          _driverNextStop = null;
         }
 
-        // Placeholder for ETA calculation (fixed route, no live GPS)
         _estimatedArrivalTime = _driverNextStop != null ? '5-10 min' : 'N/A';
       });
     }
@@ -86,8 +97,35 @@ class _RideStartedPageState extends State<RideStartedPage> {
     if (currentStopIndex != null) {
       updateData['current_stop_index'] = currentStopIndex;
     }
-
     await _firestore.collection('active_rides').doc(widget.rideId).update(updateData);
+
+    // --- Notification logic ---
+    if (currentStopIndex != null) {
+      // Query all passengers for this ride
+      final rideDoc = await _firestore.collection('active_rides').doc(widget.rideId).get();
+      if (rideDoc.exists) {
+        final rideData = rideDoc.data() as Map<String, dynamic>;
+        final passengers = rideData['passengers'] as List<dynamic>?;
+        if (passengers != null) {
+          for (final passenger in passengers) {
+            final passengerId = passenger['PId'];
+            final pickupStopIndex = passenger['pickup_stop_index'];
+            if (pickupStopIndex != null && pickupStopIndex == currentStopIndex) {
+              // Get driver name and pickup stop name
+              final driverDoc = await _firestore.collection('users').doc(rideData['DId']).get();
+              final driverName = driverDoc.data()?['name'] ?? 'Driver';
+              final pickupStopName = passenger['pickup_stop_name'] ?? 'your stop';
+              // Send notification
+              await NotificationService().sendDriverArrivalNotification(
+                passengerId: passengerId,
+                driverName: driverName,
+                pickupLocation: pickupStopName,
+              );
+            }
+          }
+        }
+      }
+    }
   }
 
   void _handleArrived() async {
@@ -151,6 +189,45 @@ class _RideStartedPageState extends State<RideStartedPage> {
     }
   }
 
+  void _notifyPassengerOfArrival(int stopIndex) async {
+    try {
+      final rideDoc = await _firestore.collection('active_rides').doc(widget.rideId).get();
+      if (!rideDoc.exists) return;
+
+      final rideData = rideDoc.data() as Map<String, dynamic>;
+      final passengerId = rideData['PId'];
+      final pickupStopIndex = rideData['pickup_stop_index'];
+      final driverName = _driverProfile?['name'] ?? 'Your Driver';
+      final stopName = _driverCurrentStop?['name'] ?? 'your pickup location';
+
+      if (pickupStopIndex == stopIndex) {
+        await NotificationService().sendDriverArrivalNotification(
+          passengerId: passengerId,
+          driverName: driverName,
+          pickupLocation: stopName,
+        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Arrival notification sent!')),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No passengers to notify at this stop.')),
+          );
+        }
+      }
+    } catch (e) {
+      print('Error notifying passenger: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error sending notification: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_currentRideData == null || _routeStops.isEmpty) {
@@ -158,6 +235,13 @@ class _RideStartedPageState extends State<RideStartedPage> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
+
+    // --- Recalculate passengers at current stop directly in build method ---
+    final passengers = _currentRideData!['passengers'] as List<dynamic>? ?? [];
+    final passengersAtCurrentStop = passengers
+        .where((p) => p['pickup_stop_index'] == _currentStopIndex)
+        .toList();
+    // --- End of recalculation ---
 
     final rideStatus = _currentRideData!['status'];
 
@@ -304,6 +388,25 @@ class _RideStartedPageState extends State<RideStartedPage> {
                     style: const TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
+                // --- "Arrived" Button Logic moved here ---
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _notifyPassengerOfArrival(_currentStopIndex);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    ),
+                    child: const Text(
+                      'Arrived',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                  ),
+                ),
+                // --- End of "Arrived" Button Logic ---
               ],
             ),
           ),
@@ -352,9 +455,8 @@ class _RideStartedPageState extends State<RideStartedPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  // Passenger Info Section (if applicable - will be fetched from active_rides)
+                  // Passenger Info Section
                   const Text('Passengers on board (TODO)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  // You would iterate through passengers related to current ride here
                 ],
               ),
             ),
